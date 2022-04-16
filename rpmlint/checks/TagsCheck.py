@@ -9,7 +9,7 @@ from rpmlint import pkg as Pkg
 from rpmlint.checks import FilesCheck
 from rpmlint.checks.AbstractCheck import AbstractCheck
 from rpmlint.helpers import byte_to_string
-from rpmlint.spellcheck import Spellcheck
+from rpmlint.spellcheck import Spellcheck, suggestion
 
 CAPITALIZED_IGNORE_LIST = ('jQuery', 'openSUSE', 'wxWidgets', 'a', 'an', 'uWSGI')
 
@@ -629,6 +629,7 @@ class TagsCheck(AbstractCheck):
                         # Check if a package has a License: value other than ValidLicenses
                         if l2 not in self.valid_licenses:
                             self.output.add_info('W', pkg, 'invalid-license', l2)
+                            self.output.add_info('I', pkg, 'invalid-license-spellcheck', ', '.join(suggestion(l2, self.valid_licenses)[:3]))
                             valid_license = False
             if not valid_license:
                 self._unexpanded_macros(pkg, 'License', rpm_license)

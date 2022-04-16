@@ -1,4 +1,7 @@
 import re
+import operator
+import difflib
+import itertools
 
 from rpmlint.helpers import print_warning
 
@@ -121,3 +124,22 @@ class Spellcheck(object):
                     sug = f'-> {sug}'
                 suggestions[err.word] = fmt.format(lang) + f' {err.word} {sug}'
             return suggestions
+
+
+def suggestion(word, possibilities):
+    """
+    Find suggestions for a given word that was determined to be 'wrong' by edit
+    distance.
+    """
+
+    ratios = {}
+
+    for possibility in possibilities:
+        ratio = difflib.SequenceMatcher(None, word, possibility).ratio()
+
+        if ratio not in ratios:
+            ratios[ratio] = []
+
+        ratios[ratio].append(possibility)
+
+    return list(itertools.chain.from_iterable(sug[1] for sug in sorted(ratios.items(), key=operator.itemgetter(0), reverse=True)))
